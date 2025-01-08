@@ -1,0 +1,2 @@
+home-assistant:2025.1.1
+
