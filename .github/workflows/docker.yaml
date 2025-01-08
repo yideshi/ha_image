@@ -159,8 +159,8 @@ jobs:
             new_image="$ALIYUN_REGISTRY/$ALIYUN_NAME_SPACE/$platform_prefix$name_space_prefix$image_name_tag"
             if [[ -n "$ha_image" ]]; then
               ha_name=$(echo "$image_name_tag" | awk -F':' '{print $1}')
-              docker tag "$image $new_image"
-              docker push "$new_image"
+              docker tag $image $new_image
+              docker push $new_image
               if [ "$ha_name" == "home-assistant" ]; then
                 tag=("${version%.*}" latest rc beta stable)
               else
@@ -174,9 +174,9 @@ jobs:
               fi
               for tag in "${tag[@]}"; do
                   tag_image=$(echo "$new_image" | awk -F':' '{print $1}'):$tag
-                  docker tag "$new_image $tag_image"
-                  docker push "$tag_image"
-                  docker rmi "$tag_image"
+                  docker tag $new_image $tag_image
+                  docker push $tag_image
+                  docker rmi $tag_image
               done
             else
               echo "docker tag $image $new_image"
