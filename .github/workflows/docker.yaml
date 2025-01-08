@@ -66,17 +66,19 @@ jobs:
             version=$(echo "$image" | awk -F':' '{print $NF}')
             image=$(echo "$image" | awk -F':' '{print $1}')
             if [ "$image" == "home-assistant" ]; then
-		        ha_image="$image"
+		            ha_image="$image"
                 machine=(home-assistant generic-x86-64 intel-nuc khadas-vim3 odroid-c2 odroid-c4 odroid-m1 odroid-n2 odroid-xu qemuarm qemuarm-64 qemux86 qemux86-64 raspberrypi raspberrypi2 raspberrypi3 raspberrypi3-64 raspberrypi4 raspberrypi4-64 raspberrypi5-64 tinker yellow green amd64 aarch64 armv7 armhf i386)
                 for machine in "${machine[@]}"; do
-				    if [ "$machine" = "home-assistant" ]; then
-				      echo "ghcr.io/home-assistant/$machine:$version" > images.txt
-				    else
-				      echo "ghcr.io/home-assistant/$machine-homeassistant:$version" >> images.txt
-				    fi
+                    if [ "$machine" = "home-assistant" ]; then
+                      echo "ghcr.io/home-assistant/$machine:$version" > images.txt
+                    else
+                      echo "ghcr.io/home-assistant/$machine-homeassistant:$version" >> images.txt
+                    fi
                 done
             fi 
         done < images.txt
+
+
         while IFS= read -r line || [ -n "$line" ]; do
             # 忽略空行与注释
             [[ -z "$line" ]] && continue
@@ -156,26 +158,26 @@ jobs:
             image_name_tag="${image_name_tag%%@*}"
             new_image="$ALIYUN_REGISTRY/$ALIYUN_NAME_SPACE/$platform_prefix$name_space_prefix$image_name_tag"
             if [[ -n "$ha_image" ]]; then
-                ha_name=$(echo "$image_name_tag" | awk -F':' '{print $1}')
-                docker tag "$image $new_image"
-                docker push "$new_image"
-                if [ "$ha_name" == "home-assistant" ]; then
-                    tag=("${version%.*}" latest rc beta stable)
-                else
-                    lei=(amd64 aarch64 armv7 armhf i386)
-                    tag=(latest stable)
-                    for lei in "${lei[@]}"; do
-                        if [[ "$ha_name" =~ $lei ]]; then
-                            tag=(latest)
-                        fi
-                    done
-                fi
-                for tag in "${tag[@]}"; do
-                    tag_image=$(echo "$new_image" | awk -F':' '{print $1}'):$tag
-                    docker tag "$new_image $tag_image"
-                    docker push "$tag_image"
-                    docker rmi "$tag_image"
-                done
+              ha_name=$(echo "$image_name_tag" | awk -F':' '{print $1}')
+              docker tag "$image $new_image"
+              docker push "$new_image"
+              if [ "$ha_name" == "home-assistant" ]; then
+                tag=("${version%.*}" latest rc beta stable)
+              else
+                  lei=(amd64 aarch64 armv7 armhf i386)
+                  tag=(latest stable)
+                  for lei in "${lei[@]}"; do
+                      if [[ "$ha_name" =~ $lei ]]; then
+                          tag=(latest)
+                      fi
+                  done
+              fi
+              for tag in "${tag[@]}"; do
+                  tag_image=$(echo "$new_image" | awk -F':' '{print $1}'):$tag
+                  docker tag "$new_image $tag_image"
+                  docker push "$tag_image"
+                  docker rmi "$tag_image"
+              done
             fi
             echo "docker tag $image $new_image"
             docker tag $image $new_image
